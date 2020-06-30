@@ -1,6 +1,6 @@
 const rates = {};
 
-function setEchangeRate(rate, sourceCurrency, targetCurrency) {
+function setExchangeRate(rate, sourceCurrency, targetCurrency) {
   if (rates[sourceCurrency] === undefined) {
     rates[sourceCurrency] = {};
   }
@@ -13,13 +13,9 @@ function setEchangeRate(rate, sourceCurrency, targetCurrency) {
   rates[targetCurrency][sourceCurrency] = 1 / rate;
 }
 
-function getExchangerate(sourceCurrency, targetCurrency) {
-  return rates[sourceCurrency][targetCurrency];
-}
-
 function convertToCurrency(value, sourceCurrency, targetCurrency) {
-  const exchangeRate = getExchangerate(sourceCurrency, targetCurrency);
-  return value * exchangeRate;
+  const exchangeRate = rates[sourceCurrency][targetCurrency];
+  return exchangeRate && value * exchangeRate;
 }
 
 function formatValueForDisplay(value) {
@@ -27,15 +23,17 @@ function formatValueForDisplay(value) {
 }
 
 function printForeignValues(value, sourceCurrency) {
-  console.log(`The value of ${value} ${sourceCurrency} is:`);
+  console.info(`The value of ${value} ${sourceCurrency} is:`);
 
-  for (const targetCurrency in rates[sourceCurrency]) {
-    const convertedValue = convertToCurrency(value, sourceCurrency, targetCurrency);
-    const displayValue = formatValueForDisplay(convertedValue);
-    console.log(`- ${convertedValue} ${targetCurrency}`);
+  for (const targetCurrency in rates) {
+    if (targetCurrency !== sourceCurrency) {
+      const convertedValue = convertToCurrency(value, sourceCurrency, targetCurrency);
+      const displayValue = formatValueForDisplay(convertedValue);
+      console.info(`- ${convertedValue} ${targetCurrency}`);
+    }
   }
 }
 
-setEchangeRate(0.88, 'USD', 'EUR');
-setEchangeRate(107.4, 'USD', 'JPY');
+setExchangeRate(0.88, 'USD', 'EUR');
+setExchangeRate(107.4, 'USD', 'JPY');
 printForeignValues(10, 'EUR');
